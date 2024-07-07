@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スケジュール管理アプリ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="function.js"></script>
+    <style>
+        a {
+            color: #000000;
+            text-decoration: none;
+        }
+        .fc-holiday-name {
+            position: relative;
+            z-index: 4;
+            padding: 4px;
+            text-align: left;
+            color: #FF0000;
+        }
+        .fc .fc-daygrid-day-top {
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">スケジュール管理アプリ</h1>
+        <div id="calendar"></div>
+    </div>
+
+    <!-- イベント追加モーダル -->
+    <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eventModalLabel">イベントを追加</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="eventForm">
+                        <div class="mb-3">
+                            <label for="eventTitle" class="form-label">イベントのタイトル</label>
+                            <input type="text" class="form-control" id="eventTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventColor" class="form-label">イベントのカラー</label>
+                            <select class="form-select" id="eventColor">
+                                <option disabled>カラーを選択してください</option>
+                                <option value="#007bff">ブルー</option>
+                                <option value="#28a745">グリーン</option>
+                                <option value="#dc3545">レッド</option>
+                                <option value="#ffc107">イエロー</option>
+                                <option value="#17a2b8">ライトブルー</option>
+                                <option value="#f8f9fa">グレー</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventDescription" class="form-label">イベントの説明</label>
+                            <textarea class="form-control" id="eventDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3" id="startTimeContainer">
+                            <label for="eventStartTime" class="form-label">開始時間</label>
+                            <div id="startinput"></div>
+                        </div>
+                        <div class="mb-3" id="endTimeContainer">
+                            <label for="eventEndTime" class="form-label">終了時間</label>
+                            <div id="endinput"></div>
+                        </div>
+                        <input type="hidden" id="eventStartDate">
+                        <input type="hidden" id="eventEndDate">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" id="saveEventButton">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- イベント編集用モーダル -->
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEventModalLabel">イベントを編集</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editEventForm">
+                        <input type="hidden" id="editEventId">
+                        <div class="mb-3">
+                            <label for="editEventTitle" class="form-label">イベントのタイトル</label>
+                            <input type="text" class="form-control" id="editEventTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEventColor" class="form-label">イベントのカラー</label>
+                            <select class="form-select" id="editEventColor">
+                                <option disabled>カラーを選択してください</option>
+                                <option value="#007bff">ブルー</option>
+                                <option value="#28a745">グリーン</option>
+                                <option value="#dc3545">レッド</option>
+                                <option value="#ffc107">イエロー</option>
+                                <option value="#17a2b8">ライトブルー</option>
+                                <option value="#f8f9fa">グレー</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEventDescription" class="form-label">イベントの説明</label>
+                            <textarea class="form-control" id="editEventDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEventStart" class="form-label">開始時間</label>
+                            <input type="datetime-local" class="form-control" id="editEventStart" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEventEnd" class="form-label">終了時間</label>
+                            <input type="datetime-local" class="form-control" id="editEventEnd" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="deleteEventButton">削除</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" id="saveEditEventButton">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var calendarEl = document.getElementById('calendar');
+        var eventModal = new bootstrap.Modal(document.getElementById('eventModal'), {});
+        var editEventModal = new bootstrap.Modal(document.getElementById('editEventModal'), {});
+
+        let userID = null;;
+        var holidays = null;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                userID = await fetch('/api/user').then(response => response.json()).then(user => user.userID);
+                if (!userID) {
+                    alert('ログインしてください！');
+                    window.location.href = '/login';
+                    return;
+                }
+                addTimeInputFields();
+                initCalendar();
+            } catch (error) {
+                console.error('Failed to fetch user ID:', error);
+                alert('ユーザーIDの取得に失敗しました。ログインしてください。');
+                window.location.href = '/login';
+            }
+        });
+
+        async function initCalendar() {
+            if (!holidays) holidays = await fetchHolidays();
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                timeZone: 'Asia/Tokyo',
+                locale: 'ja',
+                navLinks: false,
+                initialView: 'dayGridMonth',
+                fixedWeekCount: false,
+                slotLabelFormat: {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                },
+                eventTimeFormat: {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                },
+                dayCellDidMount: async function(info) {
+                    info.dayNumberText = info.dayNumberText.replace('日', '');
+
+                    if (info.date.getDay() === 0) info.el.style.backgroundColor = '#f8d7da';
+                    if (info.date.getDay() === 6) info.el.style.backgroundColor = '#d1ecf1';
+
+                    if (holidays[info.date.toISOString().slice(0, 10)]) {
+                        info.el.style.backgroundColor = '#f8d7da';
+
+                        if (!isMobileDevice()) {
+                            const holidayName = document.createElement('div');
+                            holidayName.className = 'fc-holiday-name';
+                            holidayName.innerHTML = holidays[info.date.toISOString().slice(0, 10)];
+                            const dayTopEl = info.el.querySelector('.fc-daygrid-day-top');
+                            dayTopEl.appendChild(holidayName);
+                        }
+                    }
+                },
+                events: async function(fetchInfo, successCallback, failureCallback) {
+                    try {
+                        const data = await fetch(`/api/schedules?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}&userID=${userID}`).then(response => response.json());
+                        let events = data;
+
+                        if (isMobileDevice()) {
+                            events = data.concat(Object.keys(holidays).map(date => ({
+                                title: holidays[date],
+                                start: date,
+                                allDay: true,
+                                color: '#FF0000'
+                            })));
+                        }
+
+                        successCallback(events);
+                        highlightWeekendsAndHolidays({ view: fetchInfo.view, holidays });
+                        addHolidayNames({ view: fetchInfo.view, holidays });
+                    } catch (error) {
+                        failureCallback(error);
+                    }
+                },
+                selectable: true,
+                select: function(info){
+                    let endStr = new Date(info.endStr);
+                    endStr.setDate(endStr.getDate() - 1);
+                    endStr = endStr.toISOString().slice(0, 10);
+
+                    document.getElementById('eventStartDate').value = info.startStr.slice(0, 10);
+                    document.getElementById('eventEndDate').value = endStr;
+                    eventModal.show();
+                },
+                eventClick: function(info) {
+                    // 編集用モーダルにデータをセット
+                    document.getElementById('editEventId').value = info.event.id;
+                    document.getElementById('editEventTitle').value = info.event.title;
+                    document.getElementById('editEventColor').value = info.event.backgroundColor;
+                    document.getElementById('editEventDescription').value = info.event.extendedProps.description;
+                    document.getElementById('editEventStart').value = info.event.start.toISOString().slice(0, 16);
+                    document.getElementById('editEventEnd').value = info.event.end ? info.event.end.toISOString().slice(0, 16) : '';
+
+                    // 編集用モーダルを表示
+                    editEventModal.show();
+                },
+                eventColor: function(event) {
+                    return event.color;
+                }
+            });
+
+            document.getElementById('saveEventButton').addEventListener('click', function() {
+                var title = document.getElementById('eventTitle').value;
+                var color = document.getElementById('eventColor').value;
+                var description = document.getElementById('eventDescription').value;
+                var startDate = document.getElementById('eventStartDate').value;
+                var startTime = document.getElementById('eventStartTime').value;
+                var endDate = document.getElementById('eventEndDate').value;
+                var endTime = document.getElementById('eventEndTime').value;
+                
+                if (title) {
+                    var start = `${startDate}T${startTime}`;
+                    var end = `${endDate}T${endTime}`;
+                    
+                    fetch('/api/schedules', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            userID: userID,
+                            title: title,
+                            start: calendar.formatIso(start),
+                            end: calendar.formatIso(end),
+                            description: description,
+                            color: color
+                        })
+                    }).then(response => response.json()).then(event => {
+                        calendar.addEvent(event);
+                    }).catch(error => {
+                        alert('イベントの追加に失敗しました！');
+                    });
+                    eventModal.hide();
+                }
+            });
+
+            document.getElementById('saveEditEventButton').addEventListener('click', async function() {
+                var id = document.getElementById('editEventId').value;
+                var title = document.getElementById('editEventTitle').value;
+                var color = document.getElementById('editEventColor').value;
+                var description = document.getElementById('editEventDescription').value;
+                var start = document.getElementById('editEventStart').value;
+                var end = document.getElementById('editEventEnd').value;
+                
+                if (title) {
+                    var start = `${startDate}T${startTime}`;
+                    var end = `${endDate}T${endTime}`;
+                    
+                    fetch(`/api/schedules/${eventId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            userID: userID,
+                            title: title,
+                            start: calendar.formatIso(start),
+                            end: calendar.formatIso(end),
+                            description: description,
+                            color: color
+                        })
+                    }).then(response => response.json()).then(event => {
+                        calendar.addEvent(event);
+                    }).catch(error => {
+                        alert('イベントの追加に失敗しました！');
+                    });
+                    eventModal.hide();
+                }
+            });
+
+            document.getElementById('deleteEventButton').addEventListener('click', async function() {
+                const eventId = document.getElementById('editEventId').value;
+
+                try {
+                    await fetch(`/api/schedules/${eventId}`, {
+                        method: 'DELETE'
+                    });
+
+                    // イベントを削除
+                    const event = calendar.getEventById(eventId);
+                    event.remove();
+
+                    editEventModal.hide();
+                } catch (error) {
+                    alert('イベントの削除に失敗しました！');
+                }
+            });
+            
+            calendar.render();
+        }
+    </script>
+
+</body>
+</html>
