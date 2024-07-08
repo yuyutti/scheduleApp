@@ -119,13 +119,7 @@ app.get('/api/schedules', async (req, res) => {
             }
         });
 
-        const schedulesJST = schedules.map(schedule => ({
-            ...schedule.toJSON(),
-            start: moment(schedule.start).tz('Asia/Tokyo').format(),
-            end: schedule.end ? moment(schedule.end).tz('Asia/Tokyo').format() : null
-        }));
-
-        res.json(schedulesJST);
+        res.json(schedules);
     } catch (error) {
         res.status(500).send(error.message);
     }
