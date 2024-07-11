@@ -200,6 +200,6 @@ app.delete('/api/schedules/:id/:userid', async (req, res) => {
 });
 
 // サーバーの起動
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+app.listen(6500, () => {
+    console.log('Server is running on port 6500');
 });
