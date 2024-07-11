@@ -16,7 +16,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // httpsを使用する場合はtrue
+    cookie: { secure: true } // httpsを使用する場合はtrue
 }));
 
 // CORS設定
