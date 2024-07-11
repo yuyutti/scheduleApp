@@ -24,6 +24,9 @@
         .fc .fc-daygrid-day-top {
             justify-content: space-between;
         }
+        #editEventStartDay, #editEventEndDay {
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -64,11 +67,11 @@
                         </div>
                         <div class="mb-3" id="startTimeContainer">
                             <label for="eventStartTime" class="form-label">開始時間</label>
-                            <div id="startinput"></div>
+                            <div id="startInput"></div>
                         </div>
                         <div class="mb-3" id="endTimeContainer">
                             <label for="eventEndTime" class="form-label">終了時間</label>
-                            <div id="endinput"></div>
+                            <div id="endInput"></div>
                         </div>
                         <input type="hidden" id="eventStartDate">
                         <input type="hidden" id="eventEndDate">
@@ -113,13 +116,13 @@
                             <label for="editEventDescription" class="form-label">イベントの説明</label>
                             <textarea class="form-control" id="editEventDescription" rows="3"></textarea>
                         </div>
-                        <div class="mb-3">
-                            <label for="editEventStart" class="form-label">開始時間</label>
-                            <input type="datetime-local" class="form-control" id="editEventStart" required>
+                        <div class="mb-3" id="editStartTimeContainer">
+                            <label for="eventStartTime" class="form-label">開始時間</label>
+                            <div id="editStartInput"></div>
                         </div>
-                        <div class="mb-3">
-                            <label for="editEventEnd" class="form-label">終了時間</label>
-                            <input type="datetime-local" class="form-control" id="editEventEnd" required>
+                        <div class="mb-3" id="editEndTimeContainer">
+                            <label for="eventEndTime" class="form-label">終了時間</label>
+                            <div id="editEndInput"></div>
                         </div>
                     </form>
                 </div>
@@ -137,7 +140,7 @@
         var eventModal = new bootstrap.Modal(document.getElementById('eventModal'), {});
         var editEventModal = new bootstrap.Modal(document.getElementById('editEventModal'), {});
 
-        let userID = null;;
+        let userID = null;
         var holidays = null;
 
         document.addEventListener('DOMContentLoaded', async function() {
@@ -148,7 +151,8 @@
                     window.location.href = '/login';
                     return;
                 }
-                addTimeInputFields();
+                addTimeInputFields_NewInput();
+                addTimeInputFields_EditInput();
                 initCalendar();
             } catch (error) {
                 console.error('Failed to fetch user ID:', error);
@@ -208,8 +212,6 @@
                         }
 
                         successCallback(events);
-                        highlightWeekendsAndHolidays({ view: fetchInfo.view, holidays });
-                        addHolidayNames({ view: fetchInfo.view, holidays });
                     } catch (error) {
                         failureCallback(error);
                     }
@@ -230,8 +232,10 @@
                     document.getElementById('editEventTitle').value = info.event.title;
                     document.getElementById('editEventColor').value = info.event.backgroundColor;
                     document.getElementById('editEventDescription').value = info.event.extendedProps.description;
-                    document.getElementById('editEventStart').value = info.event.start.toISOString().slice(0, 16);
-                    document.getElementById('editEventEnd').value = info.event.end ? info.event.end.toISOString().slice(0, 16) : '';
+                    document.getElementById('editEventStartDay').value = info.event.start.toISOString().split('T')[0];
+                    document.getElementById('editEventStartTime').value = info.event.start.toISOString().split('T')[1].slice(0, 5);
+                    document.getElementById('editEventEndDay').value = info.event.end ? info.event.end.toISOString().split('T')[0] : '';
+                    document.getElementById('editEventEndTime').value = info.event.end ? info.event.end.toISOString().split('T')[1].slice(0, 5) : '';
 
                     // 編集用モーダルを表示
                     editEventModal.show();
@@ -253,7 +257,8 @@
                 if (title) {
                     var start = `${startDate}T${startTime}`;
                     var end = `${endDate}T${endTime}`;
-                    
+                    console.log(start, end)
+
                     fetch('/api/schedules', {
                         method: 'POST',
                         headers: {
@@ -262,8 +267,8 @@
                         body: JSON.stringify({
                             userID: userID,
                             title: title,
-                            start: calendar.formatIso(start),
-                            end: calendar.formatIso(end),
+                            start: start,
+                            end: end ? end : null,
                             description: description,
                             color: color
                         })
@@ -277,16 +282,19 @@
             });
 
             document.getElementById('saveEditEventButton').addEventListener('click', async function() {
-                var id = document.getElementById('editEventId').value;
+                var eventId = document.getElementById('editEventId').value;
                 var title = document.getElementById('editEventTitle').value;
                 var color = document.getElementById('editEventColor').value;
                 var description = document.getElementById('editEventDescription').value;
-                var start = document.getElementById('editEventStart').value;
-                var end = document.getElementById('editEventEnd').value;
-                
+                var editEventStartDay = document.getElementById('editEventStartDay').value;
+                var editEventStartTime = document.getElementById('editEventStartTime').value;
+                var editEventEndDay = document.getElementById('editEventEndDay').value;
+                var editEventEndTime = document.getElementById('editEventEndTime').value;
+
                 if (title) {
-                    var start = `${startDate}T${startTime}`;
-                    var end = `${endDate}T${endTime}`;
+                    var start = `${editEventStartDay}T${editEventStartTime}:00`;
+                    var end = editEventEndDay ? `${editEventEndDay}T${editEventEndTime}:00` : null;
+                    console.log(start, end)
                     
                     fetch(`/api/schedules/${eventId}`, {
                         method: 'PUT',
@@ -296,12 +304,13 @@
                         body: JSON.stringify({
                             userID: userID,
                             title: title,
-                            start: calendar.formatIso(start),
-                            end: calendar.formatIso(end),
+                            start: start,
+                            end: end ? end : null,
                             description: description,
                             color: color
                         })
                     }).then(response => response.json()).then(event => {
+                        calendar.getEventById(eventId).remove();
                         calendar.addEvent(event);
                     }).catch(error => {
                         alert('イベントの追加に失敗しました！');
@@ -314,13 +323,12 @@
                 const eventId = document.getElementById('editEventId').value;
 
                 try {
-                    await fetch(`/api/schedules/${eventId}`, {
+                    await fetch(`/api/schedules/${eventId}/${userID}`, {
                         method: 'DELETE'
                     });
 
                     // イベントを削除
-                    const event = calendar.getEventById(eventId);
-                    event.remove();
+                    const event = calendar.getEventById(eventId).remove();
 
                     editEventModal.hide();
                 } catch (error) {

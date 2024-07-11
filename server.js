@@ -111,10 +111,10 @@ app.get('/api/schedules', async (req, res) => {
             where: {
                 userID: userID,
                 start: {
-                    [Op.gte]: start // 'start' が 'start' パラメータ以上
+                    [Op.gte]: start
                 },
                 end: {
-                    [Op.lte]: end // 'end' が 'end' パラメータ以下
+                    [Op.lte]: end
                 }
             }
         });
@@ -137,18 +137,15 @@ app.post('/api/schedules', async (req, res) => {
             return res.status(403).send('Forbidden');
         }
 
-        // タイムゾーンをJSTとして解釈し、UTCに変換
-        const startUTC = moment.tz(start, 'Asia/Tokyo').utc().format();
-        const endUTC = end ? moment.tz(end, 'Asia/Tokyo').utc().format() : null;
-
         const newSchedule = await Schedule.create({
             userID,
             title,
-            start: startUTC,
-            end: endUTC,
-            description,
-            color
+            color,
+            description: description ? description : null,
+            start: moment(start).add(9, 'hours'),
+            end: end ? moment(end).add(9, 'hours') : null
         });
+
         res.json(newSchedule);
     } catch (error) {
         res.status(500).send(error.message);
@@ -162,13 +159,16 @@ app.put('/api/schedules/:id', async (req, res) => {
             return res.status(404).send('スケジュールが見つかりません');
         }
 
-        const { title, color, description, start, end } = req.body;
+        const { userID, title, color, description, start, end } = req.body;
+        const userId = req.session.userID;
+
+        if (!userID || userId !== schedule.userID) return res.status(403).send('Forbidden');
 
         schedule.title = title;
         schedule.color = color;
-        schedule.description = description;
-        schedule.start = moment.tz(start, 'Asia/Tokyo').utc().format();
-        schedule.end = end ? moment.tz(end, 'Asia/Tokyo').utc().format() : null;
+        schedule.description = description ? description : null;
+        schedule.start = moment(start).add(9, 'hours');
+        schedule.end = end ? moment(end).add(9, 'hours') : null;
 
         await schedule.save();
         res.json(schedule);
@@ -177,7 +177,15 @@ app.put('/api/schedules/:id', async (req, res) => {
     }
 });
 
-app.delete('/api/schedules/:id', async (req, res) => {
+app.delete('/api/schedules/:id/:userid', async (req, res) => {
+
+    if (!req.isAuthenticated()) return res.status(401).send('Unauthorized');
+
+    const userID = req.session.userID;
+    const userId = req.params.userid;
+    console.log(userID, userId);
+    if (userID !== userId) return res.status(403).send('Forbidden');
+
     try {
         const schedule = await Schedule.findByPk(req.params.id);
         if (!schedule) {
