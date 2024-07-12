@@ -16,7 +16,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true } // httpsを使用する場合はtrue
+    cookie: { secure: false } // httpsを使用する場合はtrue
 }));
 
 // CORS設定
@@ -71,6 +71,7 @@ app.get('/logout', (req, res) => {
 app.get('/', (req, res) => {
     // 未ログインの場合はログインページにリダイレクト
     if (!req.isAuthenticated()) {
+        console.log(req.session)
         return res.redirect('/login');
     }
     res.sendFile(__dirname + '/public/home.html');
