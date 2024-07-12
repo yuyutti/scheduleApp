@@ -71,7 +71,6 @@ app.get('/logout', (req, res) => {
 app.get('/', (req, res) => {
     // 未ログインの場合はログインページにリダイレクト
     if (!req.isAuthenticated()) {
-        console.log(req.session)
         return res.redirect('/login');
     }
     res.sendFile(__dirname + '/public/home.html');
