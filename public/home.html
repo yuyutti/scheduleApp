@@ -54,7 +54,7 @@
         }
         .fc-daygrid-day-frame {
             flex: 1 1 auto;
-            height: calc((100vh - 130px) / 5);
+            height: calc((100vh - 150px) / 5);
             min-height: 0;
             overflow-y: auto;
         }
@@ -269,7 +269,7 @@
                     }
                 },
                 selectable: true,
-                selectLongPressDelay: 10,
+                selectLongPressDelay: 1,
                 select: function(info){
                     let endStr = new Date(info.endStr);
                     endStr.setDate(endStr.getDate() - 1);
