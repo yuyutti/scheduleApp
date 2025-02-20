@@ -84,6 +84,47 @@
             display: none;  /* Chrome, Safari */
         }
     </style>
+    <style>
+        .time-picker-container {
+            position: relative;
+            width: 100%;
+        }
+
+        /* 🔹 `datalist` は非表示にする */
+        datalist {
+            display: none;
+        }
+
+        /* 🔹 カスタムドロップダウン */
+        .time-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            width: 50%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 1000;
+            display: none; /* 初期状態は非表示 */
+        }
+
+        /* 🔹 候補スタイル */
+        .time-option {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+            background: white;
+            color: black;
+        }
+
+        /* 🔹 マウスオーバー時の選択 */
+        .time-option:hover {
+            background: #007bff;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -103,23 +144,30 @@
                     <form id="eventForm">
                         <div class="mb-3">
                             <label for="eventTitle" class="form-label">イベントのタイトル</label>
-                            <input type="text" class="form-control" id="eventTitle" required>
+                            <input type="text" class="form-control" id="eventTitle" tabindex="1" required>
                         </div>
                         <div class="mb-3">
                             <label for="eventColor" class="form-label">イベントのカラー</label>
-                            <select class="form-select" id="eventColor">
+                            <select class="form-select" id="eventColor" tabindex="2">
                                 <option disabled>カラーを選択してください</option>
-                                <option value="#007bff">ブルー</option>
-                                <option value="#28a745">グリーン</option>
                                 <option value="#dc3545">レッド</option>
+                                <option value="#fd7e14">オレンジ</option>
                                 <option value="#ffc107">イエロー</option>
+                                <option value="#e83e8c">ピンク</option>
+                                <option value="#007bff">ブルー</option>
                                 <option value="#17a2b8">ライトブルー</option>
+                                <option value="#28a745">グリーン</option>
+                                <option value="#20c997">エメラルド</option>
+                                <option value="#6f42c1">パープル</option>
+                                <option value="#795548">ブラウン</option>
+                                <option value="#343a40">ブラック</option>
+                                <option value="#a8a8a8">シルバー</option>
                                 <option value="#f8f9fa">グレー</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="eventDescription" class="form-label">イベントの説明</label>
-                            <textarea class="form-control" id="eventDescription" rows="3"></textarea>
+                            <textarea class="form-control" id="eventDescription" rows="3" tabindex="3"></textarea>
                         </div>
                         <div class="mb-3" id="startTimeContainer">
                             <label for="eventStartTime" class="form-label">開始時間</label>
@@ -134,8 +182,12 @@
                     </form>
                 </div>
                 <div class="modal-footer">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="keepEventValues">
+                        <label class="form-check-label" for="keepEventValues">入力内容をリセットしない</label>
+                    </div>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                    <button type="button" class="btn btn-primary" id="saveEventButton">保存</button>
+                    <button type="button" class="btn btn-primary" id="saveEventButton" tabindex="5">保存</button>
                 </div>
             </div>
         </div>
@@ -154,23 +206,30 @@
                         <input type="hidden" id="editEventId">
                         <div class="mb-3">
                             <label for="editEventTitle" class="form-label">イベントのタイトル</label>
-                            <input type="text" class="form-control" id="editEventTitle" required>
+                            <input type="text" class="form-control" id="editEventTitle" tabindex="1" required>
                         </div>
                         <div class="mb-3">
                             <label for="editEventColor" class="form-label">イベントのカラー</label>
-                            <select class="form-select" id="editEventColor">
+                            <select class="form-select" id="editEventColor" tabindex="2">
                                 <option disabled>カラーを選択してください</option>
-                                <option value="#007bff">ブルー</option>
-                                <option value="#28a745">グリーン</option>
                                 <option value="#dc3545">レッド</option>
+                                <option value="#fd7e14">オレンジ</option>
                                 <option value="#ffc107">イエロー</option>
+                                <option value="#e83e8c">ピンク</option>
+                                <option value="#007bff">ブルー</option>
                                 <option value="#17a2b8">ライトブルー</option>
+                                <option value="#28a745">グリーン</option>
+                                <option value="#20c997">エメラルド</option>
+                                <option value="#6f42c1">パープル</option>
+                                <option value="#795548">ブラウン</option>
+                                <option value="#343a40">ブラック</option>
+                                <option value="#a8a8a8">シルバー</option>
                                 <option value="#f8f9fa">グレー</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="editEventDescription" class="form-label">イベントの説明</label>
-                            <textarea class="form-control" id="editEventDescription" rows="3"></textarea>
+                            <textarea class="form-control" id="editEventDescription" rows="3" tabindex="3"></textarea>
                         </div>
                         <div class="mb-3" id="editStartTimeContainer">
                             <label for="eventStartTime" class="form-label">開始時間</label>
@@ -185,7 +244,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" id="deleteEventButton">削除</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                    <button type="button" class="btn btn-primary" id="saveEditEventButton">保存</button>
+                    <button type="button" class="btn btn-primary" id="saveEditEventButton" tabindex="5">保存</button>
                 </div>
             </div>
         </div>
@@ -207,14 +266,32 @@
                     window.location.href = '/login';
                     return;
                 }
-                addTimeInputFields_NewInput();
-                addTimeInputFields_EditInput();
                 initCalendar();
             } catch (error) {
                 console.error('Failed to fetch user ID:', error);
                 alert('ユーザーIDの取得に失敗しました。ログインしてください。');
                 window.location.href = '/login';
             }
+            // 新規作成（時間のみ）
+            createTimeInputField('startInput', 'eventStartDate', 'eventStartTime', 'eventStartTimeSelect', false);
+            createTimeInputField('endInput', 'eventEndDate', 'eventEndTime', 'eventEndTimeSelect', false);
+
+            // 編集（日付 + 時間）
+            createTimeInputField('editStartInput', 'editEventStartDay', 'editEventStartTime', 'editEventStartTimeSelect', true);
+            createTimeInputField('editEndInput', 'editEventEndDay', 'editEventEndTime', 'editEventEndTimeSelect', true);
+
+            setupTimeDropdown("eventStartTime", "timeList");
+            setupTimeDropdown("eventEndTime", "timeList");
+            setupTimeDropdown("editEventStartTime", "timeList");
+            setupTimeDropdown("editEventEndTime", "timeList");
+        });
+
+        document.getElementById('eventModal').addEventListener('shown.bs.modal', function () {
+            document.getElementById('eventTitle').focus();
+        });
+
+        document.getElementById('editEventModal').addEventListener('shown.bs.modal', function () {
+            document.getElementById('editEventTitle').focus();
         });
 
         async function initCalendar() {
@@ -286,17 +363,29 @@
                     eventModal.show();
                 },
                 eventClick: function(info) {
-                    // 編集用モーダルにデータをセット
-                    document.getElementById('editEventId').value = info.event.id;
-                    document.getElementById('editEventTitle').value = info.event.title;
-                    document.getElementById('editEventColor').value = info.event.backgroundColor;
-                    document.getElementById('editEventDescription').value = info.event.extendedProps.description;
-                    document.getElementById('editEventStartDay').value = info.event.start.toISOString().split('T')[0];
-                    document.getElementById('editEventStartTime').value = info.event.start.toISOString().split('T')[1].slice(0, 5);
-                    document.getElementById('editEventEndDay').value = info.event.end ? info.event.end.toISOString().split('T')[0] : '';
-                    document.getElementById('editEventEndTime').value = info.event.end ? info.event.end.toISOString().split('T')[1].slice(0, 5) : '';
+                    // フォーム要素を取得
+                    const editEventId = document.getElementById('editEventId');
+                    const editEventTitle = document.getElementById('editEventTitle');
+                    const editEventColor = document.getElementById('editEventColor');
+                    const editEventDescription = document.getElementById('editEventDescription');
+                    const editEventStartDay = document.getElementById('editEventStartDay');
+                    const editEventStartTime = document.getElementById('editEventStartTime');
+                    const editEventEndDay = document.getElementById('editEventEndDay');
+                    const editEventEndTime = document.getElementById('editEventEndTime');
 
-                    // 編集用モーダルを表示
+                    // フィールドに値をセット
+                    editEventId.value = info.event.id;
+                    editEventTitle.value = info.event.title;
+                    editEventColor.value = info.event.backgroundColor;
+                    editEventDescription.value = info.event.extendedProps.description || '';
+
+                    // 編集時は日付と時間を分離してセット
+                    editEventStartDay.value = info.event.start.toISOString().split('T')[0];
+                    editEventStartTime.value = info.event.start.toISOString().split('T')[1].slice(0, 5);
+
+                    editEventEndDay.value = info.event.end ? info.event.end.toISOString().split('T')[0] : '';
+                    editEventEndTime.value = info.event.end ? info.event.end.toISOString().split('T')[1].slice(0, 5) : '';
+
                     editEventModal.show();
                 },
                 eventColor: function(event) {
@@ -337,6 +426,9 @@
                         alert('イベントの追加に失敗しました！');
                     });
                     eventModal.hide();
+                    if (!document.getElementById('keepEventValues').checked) {
+                        resetEventForm();
+                    }
                 }
             });
 
@@ -398,6 +490,5 @@
             calendar.render();
         }
     </script>
-
 </body>
 </html>
