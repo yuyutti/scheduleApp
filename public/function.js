@@ -63,24 +63,9 @@ function createTimeInputField(containerId, dateInputId, timeInputId, includeDate
 
     const timeField = document.getElementById(timeInputId);
 
-    if (isMobile) {
-        // iPhoneの場合、15分おきに補正
-        timeField.addEventListener("blur", (e) => {
-            if (!e.target.value) return;
-            let [hours, minutes] = e.target.value.split(":").map(Number);
-            let roundedMinutes = Math.round(minutes / 15) * 15;
-            if (roundedMinutes === 60) {
-                hours = (hours + 1) % 24;
-                roundedMinutes = 0;
-            }
-            e.target.value = `${String(hours).padStart(2, "0")}:${String(roundedMinutes).padStart(2, "0")}`;
-        });
-    } else {
-        // PCやAndroidは自由入力
-        timeField.addEventListener("blur", (e) => {
-            e.target.value = normalizeTimeInput(e.target.value);
-        });
-    }
+    timeField.addEventListener("blur", (e) => {
+        e.target.value = normalizeTimeInput(e.target.value);
+    });
 }
 
 function setupTimeDropdown(inputId, datalistId) {
