@@ -41,12 +41,11 @@ function convertToTimeString(value) {
 
 function createTimeInputField(containerId, dateInputId, timeInputId, includeDate = false) {
     const container = document.getElementById(containerId);
-    const isMobile = isMobileDevice();
 
     container.innerHTML = `
         <div class="input-group">
             ${includeDate ? `<input type="date" class="form-control" id="${dateInputId}" required>` : ''}
-            <input type="tel" class="form-control" id="${timeInputId}" 
+            <input type="number" inputmodel="numeric" class="form-control" id="${timeInputId}" 
                 placeholder="HH:mm" tabindex="4" autocomplete="off" required>
             <div id="timeDropdown" class="time-dropdown"></div>
             <datalist id="timeList">
