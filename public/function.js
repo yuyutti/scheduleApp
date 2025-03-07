@@ -2,18 +2,10 @@
 
 function resetEventForm() {
     document.getElementById('eventTitle').value = '';
-    document.getElementById('eventColor').value = '';
+    // document.getElementById('eventColor').value = '';
     document.getElementById('eventDescription').value = '';
     document.getElementById('eventStartTime').value = '';
     document.getElementById('eventEndTime').value = '';
-}
-
-function resetEditForm() {
-    document.getElementById('editEventTitle').value = '';
-    document.getElementById('editEventColor').value = '';
-    document.getElementById('editEventDescription').value = '';
-    document.getElementById('editEventStartTime').value = '';
-    document.getElementById('editEventEndTime').value = '';
 }
 
 // 祝日を取得する関数 //
@@ -54,8 +46,8 @@ function createTimeInputField(containerId, dateInputId, timeInputId, includeDate
     container.innerHTML = `
         <div class="input-group">
             ${includeDate ? `<input type="date" class="form-control" id="${dateInputId}" required>` : ''}
-            <input type="${isMobile ? 'time' : 'text'}" class="form-control" id="${timeInputId}" 
-                placeholder="HH:mm" ${isMobile ? 'step="900"' : ''} pattern="[0-9]{2}:[0-9]{2}" tabindex="4" autocomplete="off" required>
+            <input type="text" class="form-control" id="${timeInputId}" 
+                placeholder="HH:mm" pattern="[0-9]{2}:[0-9]{2}" tabindex="4" autocomplete="off" required>
             <div id="timeDropdown" class="time-dropdown"></div>
             <datalist id="timeList">
                 ${

@@ -183,8 +183,8 @@
                 </div>
                 <div class="modal-footer">
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="keepEventValues">
-                        <label class="form-check-label" for="keepEventValues">入力内容をリセットしない</label>
+                        <input type="checkbox" class="form-check-input" id="keepEventValues" checked>
+                        <label class="form-check-label" for="keepEventValues">入力内容をリセット</label>
                     </div>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
                     <button type="button" class="btn btn-primary" id="saveEventButton" tabindex="5">保存</button>
@@ -426,7 +426,7 @@
                         alert('イベントの追加に失敗しました！');
                     });
                     eventModal.hide();
-                    if (!document.getElementById('keepEventValues').checked) {
+                    if (document.getElementById('keepEventValues').checked) {
                         resetEventForm();
                     }
                 }
