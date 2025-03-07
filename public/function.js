@@ -45,8 +45,8 @@ function createTimeInputField(containerId, dateInputId, timeInputId, includeDate
     container.innerHTML = `
         <div class="input-group">
             ${includeDate ? `<input type="date" class="form-control" id="${dateInputId}" required>` : ''}
-            <input type="number" inputmodel="numeric" class="form-control" id="${timeInputId}" 
-                placeholder="HH:mm" tabindex="4" autocomplete="off" required>
+            <input type="text" inputmodel="numeric" class="form-control" id="${timeInputId}" 
+                placeholder="HH:mm" pattern="[0-9]* tabindex="4" autocomplete="off" required>
             <div id="timeDropdown" class="time-dropdown"></div>
             <datalist id="timeList">
                 ${
