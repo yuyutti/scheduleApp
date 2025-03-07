@@ -43,27 +43,31 @@ function createTimeInputField(containerId, dateInputId, timeInputId, includeDate
     const container = document.getElementById(containerId);
 
     container.innerHTML = `
-        <div class="input-group">
-            ${includeDate ? `<input type="date" class="form-control" id="${dateInputId}" required>` : ''}
-            <input type="text" inputmodel="numeric" class="form-control" id="${timeInputId}" 
-                placeholder="HH:mm" pattern="[0-9]* tabindex="4" autocomplete="off" required>
-            <div id="timeDropdown" class="time-dropdown"></div>
-            <datalist id="timeList">
-                ${
-                    Array.from({ length: 24 * 4 }, (_, i) => {
-                        let hours = Math.floor(i / 4);
-                        let minutes = i % 4 * 15;
-                        return `<option value="${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}">`;
-                    }).join('')
-                }
-            </datalist>
-        </div>
-    `;
+    <div class="input-group">
+        ${includeDate ? `<input type="date" class="form-control" id="${dateInputId}" required>` : ''}
+        <input type="text" inputmode="numeric" class="form-control" id="${timeInputId}" 
+            placeholder="HH:mm" pattern="[0-9]*" tabindex="4" maxlength="5" autocomplete="off" required>
+        <div id="timeDropdown" class="time-dropdown"></div>
+        <datalist id="timeList">
+            ${
+                Array.from({ length: 24 * 4 }, (_, i) => {
+                    let hours = Math.floor(i / 4);
+                    let minutes = i % 4 * 15;
+                    return `<option value="${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}">`;
+                }).join('')
+            }
+        </datalist>
+    </div>
+`;
+
+    function inputClear() {
+        timeField.value = '';
+    }
 
     const timeField = document.getElementById(timeInputId);
-
     timeField.addEventListener("blur", (e) => {
         e.target.value = normalizeTimeInput(e.target.value);
+        timeField.addEventListener("focus", inputClear, { once: true });
     });
 }
 
@@ -142,6 +146,7 @@ function setupTimeDropdown(inputId, datalistId) {
 
     // `input` にフォーカスしたら全て表示
     input.addEventListener("focus", () => {
+        input.value = "";
         dropdown.style.width = input.offsetWidth + "px";
         dropdown.style.top = input.offsetTop + input.offsetHeight + "px";
         dropdown.style.left = input.offsetLeft + "px";
