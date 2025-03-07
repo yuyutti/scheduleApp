@@ -11,6 +11,8 @@ const moment = require('moment-timezone');
 
 const app = express();
 
+const port = process.env.PORT || 6500;
+
 // セッションの設定
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -200,6 +202,6 @@ app.delete('/api/schedules/:id/:userid', async (req, res) => {
 });
 
 // サーバーの起動
-app.listen(6500, () => {
-    console.log('Server is running on port 6500');
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
