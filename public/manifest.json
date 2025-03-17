@@ -1,0 +1,17 @@
+{
+    "name": "Schedule App",
+    "short_name": "ScheduleApp",
+    "description": "A personal scheduling web application",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/image/icon.webp",
+            "sizes": "1024x1024",
+            "type": "image/webp"
+        }
+    ],
+    "scope": "/",
+    "id": "/manifest.json"
+}
