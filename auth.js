@@ -1,7 +1,8 @@
+// auth.js
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
-const User = require('./models/User');
+const User = require('./schedule-app/models/User');
 
 // Google認証の設定
 passport.use(new GoogleStrategy({

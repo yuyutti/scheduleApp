@@ -1,11 +1,12 @@
+// server.js
 const express = require('express');
 
 const session = require('express-session');
 const passport = require('./auth');
 
 const { Op } = require('sequelize');
-const sequelize = require('./models');
-const Schedule = require('./models/Schedule');
+const sequelize = require('./schedule-app/models');
+const Schedule = require('./schedule-app/models/Schedule');
 
 const moment = require('moment-timezone');
 
